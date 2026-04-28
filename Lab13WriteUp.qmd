@@ -114,8 +114,28 @@ That is, the unit of measure is the syllable as measured on six birds, and the m
 ## Part a
 Using the `pwr` package for \texttt{R} [@pwr], conduct a power analysis. How many observations would the researchers need to detect a moderate-to-large effect ($d=0.65$) when using $\alpha=0.05$ and default power (0.80) for a two-sided one sample $t$ test.
 
+**Solution**
+```{r}
+library(pwr)
+pwr.t.test(d = 0.65, 
+           power = 0.80, 
+           alternative = "two.sided", 
+           type="one.sample")
+```
+
 ## Part b
 Click the link to go to the paper. Find the source data for Figure 2. Download the Excel file. Describe what you needed to do to collect the data for Figure 2(g). Note that you only need the `closer_vals` and `further_vals`. Ensure to `mutate()` the data to get a difference (e.g., `closer_vals - further_vals`).
+
+**Solution**
+```{r}
+library(tidyverse)
+closer_data = read.csv("closer_vals.csv")
+further_data = read.csv("further_vals.csv")
+
+dat.vals = tibble(closer_vals = closer_data$closer_vals,
+              further_vals = further_data$further_vals) |>
+       mutate(difference = closer_vals - further_vals)
+```
 
 ## Part c
 Summarize the data.
