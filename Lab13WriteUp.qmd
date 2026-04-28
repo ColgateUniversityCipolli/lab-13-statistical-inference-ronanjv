@@ -175,6 +175,28 @@ Conduct the inferences they do in the paper. Make sure to report the results a l
 * "The difference between populations was significant ($p=1.04 \times10^{-8}$).''\
 **Note**: Use the two-sided test.
 
+**Solution**
+```{r}
+library(effectsize)
+# Test 1. Closer vals greater than 0 (one-sided upper)
+t.test(dat.vals$closer_vals, mu = 0, alternative = "greater")
+hedges_g(dat.vals$closer_vals, mu = 0)
+
+# Test 2. Further vals less than 0 (one-sided lower)
+t.test(dat.vals$further_vals, mu = 0, alternative = "less")
+hedges_g(dat.vals$further_vals, mu = 0)
+
+# Test 3. Difference is different from 0 (two-sided)
+t.test(dat.vals$difference, mu = 0, alternative = "two.sided")
+hedges_g(dat.vals$difference, mu = 0)
+```
+
+Closer vals:The close responses differed significantly from 0 (t=9.157, p=1.33e-09; g=1.77; 95% CI: 0.145, inf).
+
+Further vals:The far responses differed significantly from 0 (t=−7.925, p=1.87e-08; g=−1.53g; 95% CI: -inf, −0.167).
+
+Difference:The difference between populations was significant (t=9.143, p=2.75e-09; g=1.77g; 95% CI: 0.303, 0.480).
+
 ## Part e 
 
 For each hypothesis test in the previous question, plot the null $T$ 
