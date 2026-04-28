@@ -127,6 +127,7 @@ pwr.t.test(d = 0.65,
 Click the link to go to the paper. Find the source data for Figure 2. Download the Excel file. Describe what you needed to do to collect the data for Figure 2(g). Note that you only need the `closer_vals` and `further_vals`. Ensure to `mutate()` the data to get a difference (e.g., `closer_vals - further_vals`).
 
 **Solution**
+On nature.com I found firgure 2 which had a link to its source data. After downloading the excel file, I added a column name to each excel sheet respectively, the closer_vals and further_vals. I then downloaded each as csv files, and read them in to create a tibble of the values.
 ```{r}
 library(tidyverse)
 closer_data = read.csv("closer_vals.csv")
@@ -144,6 +145,24 @@ Summarize the data.
 * Summarize the closer data. Do the data suggest that dopamine in the brains of young zebra finches increases when they sing closer to their adult song?
 * Summarize the paired differences. Do the data suggest that there is a difference between dopamine in the brains of young zebra finches when they sing further away compared to closer to their adult song?
 * **Optional Challenge** Can you reproduce Figure 2(g)? Note that the you can use \texttt{geom\_errorbar()} to plot the range created by adding the mean $\pm$ one standard deviation.
+
+**Solution**
+```{r}
+dat.vals |>
+  pivot_longer(cols = everything(), names_to = "variable", values_to = "value") |>
+  group_by(variable) |>
+  summarize(
+    mean = mean(value),
+    sd = sd(value),
+    median = median(value),
+    IQR = IQR(value),
+    skew = e1071::skewness(value)
+  ) |>
+  knitr::kable(digits = 3)
+```
+
+
+The mean of the further values is -.213, which being less than 0 suggests that dopamine in the brains of young zebra finches does decrease when they sing further away. Inversely, the mean of the closer values is .179, which being greater than 0, suggests that the dopamine in the brains of young zebra finches increases when they sing closer to their adult song. The difference between the two has a mean of .391, this is notably far from 0, meaning there is a difference in the dopamine of young zebra finches in the closer values compared to the further values.
 
 ## Part d
 Conduct the inferences they do in the paper. Make sure to report the results a little more comprehensively -- that is your parenthetical should look something like: ($t=23.99$, $p<0.0001$; $g=1.34$; 95% CI: 4.43, 4.60). Ensure to verify any conditions for use.\
