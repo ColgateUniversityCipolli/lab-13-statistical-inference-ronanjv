@@ -212,5 +212,93 @@ resampling distribution for $T$ to the chart to demonstrate any differences
 between the null distribution and the distribution suggested by the data.
 
 **Solution**
+```{r}
+#| label: Bootstrapping
+#| fig-cap: "Bootstrapping graphs"
+#| fig-width: 7
+#| fig-height: 7
+#| scale: "110%"
+#| fig-align: "center"
+#| size: scriptsize
 
+set.seed(7272)
+
+n = nrow(dat.vals)
+df = n - 1
+alpha = 0.05
+
+t_close = 9.157
+t_far = -7.925
+t_diff = 9.143
+
+s_close = sd(dat.vals$closer_vals)
+s_far = sd(dat.vals$further_vals)
+s_diff = sd(dat.vals$difference)
+
+# Resampling
+ts_close = rep(NA, 1000)
+for(i in 1:1000){
+  curr.sample = sample(dat.vals$closer_vals, size = n, replace = TRUE)
+  ts_close[i] = (mean(curr.sample) - 0) / (s_close / sqrt(n))
+}
+
+ts_far = rep(NA, 1000)
+for(i in 1:1000){
+  curr.sample = sample(dat.vals$further_vals, size = n, replace = TRUE)
+  ts_far[i] = (mean(curr.sample) - 0) / (s_far / sqrt(n))
+}
+
+ts_diff = rep(NA, 1000)
+for(i in 1:1000){
+  curr.sample = sample(dat.vals$difference, size = n, replace = TRUE)
+  ts_diff[i] = (mean(curr.sample) - 0) / (s_diff / sqrt(n))
+}
+
+ggdat1 = tibble(t = seq(-14, 14, length.out = 1000)) |>
+  mutate(pdf.h0 = dt(t, df = n - 1))
+
+p1 = ggplot(ggdat1) +
+  geom_line(aes(x = t, y = pdf.h0)) +
+  stat_density(data = tibble(t = ts_close), aes(x = t), color = "grey", geom = "line") +
+  geom_hline(yintercept = 0) +
+  geom_ribbon(data = ggdat1 |> filter(t >= qt(1 - alpha, df)),
+              aes(x = t, ymin = 0, ymax = pdf.h0, fill = "Rejection Region"), alpha = 0.3) +
+  geom_ribbon(data = ggdat1 |> filter(t >= t_close),
+              aes(x = t, ymin = 0, ymax = pdf.h0, fill = "P-Value"), alpha = 0.3) +
+  geom_vline(xintercept = t_close, color = "darkred") +
+  theme_bw() +
+  labs(x = "t", y = "Density", title = "Closer vals > 0 (one-sided upper)", fill = "")
+
+ggdat2 = tibble(t = seq(-14, 14, length.out = 1000)) |>
+  mutate(pdf.h0 = dt(t, df = n - 1))
+
+p2 = ggplot(ggdat2) +
+  geom_line(aes(x = t, y = pdf.h0)) +
+  stat_density(data = tibble(t = ts_far), aes(x = t), color = "grey", geom = "line") +
+  geom_hline(yintercept = 0) +
+  geom_ribbon(data = ggdat2 |> filter(t <= qt(alpha, df)),
+              aes(x = t, ymin = 0, ymax = pdf.h0, fill = "Rejection Region"), alpha = 0.3) +
+  geom_ribbon(data = ggdat2 |> filter(t <= t_far),
+              aes(x = t, ymin = 0, ymax = pdf.h0, fill = "P-Value"), alpha = 0.3) +
+  geom_vline(xintercept = t_far, color = "darkred") +
+  theme_bw() +
+  labs(x = "t", y = "Density", title = "Further vals < 0 (one-sided lower)", fill = "")
+
+ggdat3 = tibble(t = seq(-14, 14, length.out = 1000)) |>
+  mutate(pdf.h0 = dt(t, df = n - 1))
+
+p3 = ggplot(ggdat3) +
+  geom_line(aes(x = t, y = pdf.h0)) +
+  stat_density(data = tibble(t = ts_diff), aes(x = t), color = "grey", geom = "line") +
+  geom_hline(yintercept = 0) +
+  geom_ribbon(data = ggdat3 |> filter(t >= qt(1 - alpha/2, df) | t <= qt(alpha/2, df)),
+              aes(x = t, ymin = 0, ymax = pdf.h0, fill = "Rejection Region"), alpha = 0.3) +
+  geom_ribbon(data = ggdat1 |> filter(t >= t_diff | t <= -t_diff),
+              aes(x = t, ymin = 0, ymax = pdf.h0, fill = "P-Value"), alpha = 0.3) +
+  geom_vline(xintercept = t_diff, color = "darkred") +
+  theme_bw() +
+  labs(x = "t", y = "Density", title = "Difference ≠ 0 (two-sided)", fill = "")
+
+p1 / p2 / p3
+```
 
